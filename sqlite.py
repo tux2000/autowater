@@ -13,7 +13,7 @@ isw = int(sys.argv[1])
 
 #print isw
 
-if((isw != 0) and (isw != 1)):
+if((isw != 0) and (isw != 1) and (isw != -1)):
    sys.exit("Aaaa!!!")
 
 gpio="/usr/local/bin/gpio"
@@ -60,6 +60,14 @@ def ReadChannel(channel,trans):
 def ReadRadiation(channel):
   return float(check_output([gpio, "aread", channel]))
 
+def collectData(c,isw):
+  timestamp, temperature =  get_temperature_from_sensor(DS18B20_ID)
+  timestamp, temperature_soil =  get_temperature_from_sensor(DS18B20_ID_soil)
+  c.execute("SELECT julianday('now')-julianday(date) FROM messwerte WHERE water = 1 ORDER BY date desc limit 1")
+  lastw = c.fetchone()[0]
+  return (temperature,temperature_soil,ReadChannel(0,"4"),ReadRadiation("0"),lastw,isw)
+
+#################################################################################
 
 conn = sqlite3.connect('/media/odroid/861d42ef-a564-4d51-8df6-7b2d7293c8f7/tinkering/historic.db')
 
@@ -68,13 +76,7 @@ c = conn.cursor()
 # Create table
 #c.execute('''CREATE TABLE messwerte (date text, atemp real, stemp real, moist real, rad real, lwater real, water num);''')
 
-timestamp, temperature =  get_temperature_from_sensor(DS18B20_ID)
-timestamp, temperature_soil =  get_temperature_from_sensor(DS18B20_ID_soil)
-
-c.execute("SELECT julianday('now')-julianday(date) FROM messwerte WHERE water = 1 ORDER BY date desc limit 1")
-lastw = c.fetchone()[0]
-
-data = (temperature,temperature_soil,ReadChannel(0,"4"),ReadRadiation("0"),lastw,isw)
+data = collectData(c,isw)
 
 print data
 
