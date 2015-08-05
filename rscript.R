@@ -22,18 +22,26 @@ set.seed(123)
 train_ind <- sample(seq_len(nrow(data)), size = smp_size)
 train <- data[train_ind, ]
 test <- data[-train_ind, ][-8]
-ctest <- data[-train_ind, ][8][,1]
+ctest <- data[-train_ind, ][11][,1]
 
-fit <- randomForest(water ~ atemp + stemp + moist + rad + lwater, data=train)
+train$w24 <- as.factor(train$w24)
+
+fit <- randomForest(w24 ~ moist + rad + lwater + atp24 + stp24, data=train)
 
 importance(fit)
 table(ctest,predict(fit,test))
 
 p2 = dbGetQuery( con,'SELECT * FROM messwerte WHERE water == -1 ORDER BY date DESC LIMIT 1;')
+p2$date <- as.POSIXct(p2$date,tz="GMT")
+atp24 <- as.numeric(apply(p2,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT avg(atemp) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND water == -1",sep=""))$ret}))
+stp24 <- as.numeric(apply(p2,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT avg(stemp) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND water == -1",sep=""))$ret}))
+w24 <- as.numeric(apply(p2,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT count(*) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND water == 1",sep=""))$ret}))
+curr <- cbind(p2,atp24,stp24,w24)
 
 pre <- predict(fit,p2)
 
 print(paste("decicion: ",pre))
+print(paste("real: ",curr$w24))
 
 #knn(train,test,cf,k=3)
 #table(cftest,knn(train,test,cf,k=3))
