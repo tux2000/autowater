@@ -25,10 +25,10 @@ n = sys.argv[1]
 
 if n == 'red':
   togle(RED)
-  check_output(["/media/odroid/861d42ef-a564-4d51-8df6-7b2d7293c8f7/tinkering/autowater/sqlite.py","0"])
+  check_output(["/home/odroid/tinkering/autowater/sqlite.py","0"])
   togle(RED)
 elif n == 'blue':
   togle(BLUE)
-  check_output(["/media/odroid/861d42ef-a564-4d51-8df6-7b2d7293c8f7/tinkering/autowater/sqlite.py","1"])
-  check_output(["/media/odroid/861d42ef-a564-4d51-8df6-7b2d7293c8f7/tinkering/autowater/water.py"])
+  check_output(["/home/odroid/tinkering/autowater/sqlite.py","1"])
+  check_output(["/home/odroid/tinkering/autowater/water.py"])
   togle(BLUE)

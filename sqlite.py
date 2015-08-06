@@ -69,7 +69,7 @@ def collectData(c,isw):
 
 #################################################################################
 
-conn = sqlite3.connect('/media/odroid/861d42ef-a564-4d51-8df6-7b2d7293c8f7/tinkering/historic.db')
+conn = sqlite3.connect('/home/odroid/tinkering/historic.db')
 
 c = conn.cursor()
 
