@@ -63,7 +63,7 @@ def ReadRadiation(channel):
 def collectData(c,isw):
   timestamp, temperature =  get_temperature_from_sensor(DS18B20_ID)
   timestamp, temperature_soil =  get_temperature_from_sensor(DS18B20_ID_soil)
-  c.execute("SELECT julianday('now')-julianday(date) FROM messwerte WHERE water = 1 ORDER BY date desc limit 1")
+  c.execute("SELECT julianday('now')-julianday(date) FROM messwerte WHERE (water == 1 OR water == 2) ORDER BY date desc limit 1")
   lastw = c.fetchone()[0]
   return (temperature,temperature_soil,ReadChannel(0,"4"),ReadRadiation("0"),lastw,isw)
 

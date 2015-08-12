@@ -1,5 +1,6 @@
 library("RSQLite")
 library(randomForest)
+library(nnet)
 con = dbConnect(drv="SQLite",dbname="/home/odroid/tinkering/historic.db")
 p1 = dbGetQuery( con,'SELECT time(date) as tod,date,atemp,stemp,moist,rad,lwater,water FROM messwerte WHERE date < datetime("now","-24 hour");' )
 p1$date <- as.POSIXct(p1$date,tz="GMT")
@@ -22,8 +23,10 @@ ctest <- data[-train_ind, ][11][,1]
 #train$w24 <- as.factor(train$w24)
 
 fit <- randomForest(w24 ~ atemp + stemp + moist + rad  + atp24 + stp24, data=train)
+neural <- nnet(w24 ~ atemp + stemp + moist + rad  + atp24 + stp24, data=train,size=20,linout=T, maxit = 500)
 
 importance(fit)
 table(ctest,round(predict(fit,test)))
+table(ctest,round(predict(neural, test )))
 
-save(fit,file="/home/odroid/tinkering/fit.RData")
+save(fit,neural,file="/home/odroid/tinkering/fit.RData")

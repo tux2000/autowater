@@ -5,8 +5,8 @@ import re
 import sqlite3
 
 def water():
-#  check_output(["/home/odroid/tinkering/autowater/sqlite.py","2"])
-#  check_output(["/home/odroid/tinkering/autowater/water.py"])
+  check_output(["/home/odroid/tinkering/autowater/sqlite.py","2"])
+  check_output(["/home/odroid/tinkering/autowater/water.py"])
   pass
 
 def blocked(hours):

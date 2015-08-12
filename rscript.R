@@ -2,6 +2,7 @@ library("RSQLite")
 #library("GGally")
 #library(class)
 library(randomForest)
+library(nnet)
 con = dbConnect(drv="SQLite",dbname="/home/odroid/tinkering/historic.db")
 
 load(file="/home/odroid/tinkering/fit.RData")
@@ -15,8 +16,10 @@ w24 <- as.numeric(apply(p2,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT cou
 curr <- cbind(p2,atp24,stp24,w24)
 
 pre <- predict(fit,p2)
+prenn <- predict(neural,p2)
 
 print(paste("decicion: ",pre))
+print(paste("neural: ",prenn))
 print(paste("real: ",curr$w24))
 
 
