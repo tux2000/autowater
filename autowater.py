@@ -20,7 +20,7 @@ def blocked(hours):
 def real(hours):
   conn = sqlite3.connect('/home/odroid/tinkering/historic.db')
   c = conn.cursor()
-  c.execute("SELECT count(*) FROM messwerte WHERE date > datetime('now', '-"+str(hours)+" hours') AND (water == 1 OR water == 2)")
+  c.execute("SELECT sum((1-(julianday(datetime('now'))-julianday(date)))) FROM messwerte WHERE date > datetime('now', '-"+str(hours)+" hours') AND (water == 1 OR water == 2)")
   blocks = c.fetchone()[0]
   conn.close()  
   return blocks
@@ -34,8 +34,8 @@ if(blocked(3) == 0):
   else:
     raise Exception()
   rea = real(24)
-  if round(dec) > rea:
+  if dec > rea:
     water()
-    print "dec: %f\treal: %d\t => watering" % (dec,rea)
+    print "dec: %f\treal: %f\t => watering" % (dec,rea)
   else:
-    print "dec: %f\treal: %d\t => not watering" % (dec,rea)
+    print "dec: %f\treal: %f\t => not watering" % (dec,rea)
