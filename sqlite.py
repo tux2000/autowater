@@ -13,7 +13,7 @@ isw = int(sys.argv[1])
 
 #print isw
 
-if((isw != 0) and (isw != 1) and (isw != -1) and (isw != 2)):
+if((isw != -1) and (isw != 0) and (isw != 1) and (isw != 2) and (isw != 10) and (isw != 11) and (isw != 12)):
    sys.exit("Aaaa!!!")
 
 gpio="/usr/local/bin/gpio"

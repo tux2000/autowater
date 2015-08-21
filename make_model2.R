@@ -6,13 +6,14 @@ db <- tempfile()
 file.copy('/home/odroid/tinkering/historic.db', db)
 con = dbConnect(drv="SQLite",dbname=db)
 
-p1 = dbGetQuery( con,'SELECT strftime("%H", date)+strftime("%M", date)/60.0 as tod,date,atemp,stemp,moist,rad,lwater,water FROM messwerte WHERE date < datetime("now","-24 hour") AND water < 10;' )
+
+p1 = dbGetQuery( con,'SELECT strftime("%H", date)+strftime("%M", date)/60.0 as tod,date,atemp,stemp,moist,rad,lwater,water FROM messwerte WHERE date < datetime("now","-24 hour") AND (water == -1 OR water >= 10);' )
 p1$date <- as.POSIXct(p1$date,tz="GMT")
 atp24 <- as.numeric(apply(p1,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT sum(atemp*(1-(julianday('",x['date'],"')-julianday(date))))/sum(1-(julianday('",x['date'],"')-julianday(date))) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND water == -1",sep=""))$ret}))
 atp25 <- as.numeric(apply(p1,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT sum(atemp*((julianday('",x['date'],"')-julianday(date))))/sum((julianday('",x['date'],"')-julianday(date))) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND water == -1",sep=""))$ret}))
 stp24 <- as.numeric(apply(p1,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT sum(stemp*(1-(julianday('",x['date'],"')-julianday(date))))/sum(1-(julianday('",x['date'],"')-julianday(date))) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND water == -1",sep=""))$ret}))
-w24 <- as.numeric(apply(p1,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT sum((1-(julianday(datetime('",x['date'],"'))-julianday(date)))) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND (water == 1 OR water == 2)",sep=""))$ret}))
-mw24 <- as.numeric(apply(p1,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT count(*) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-12 hour') AND date < datetime('",x['date'],"','+12 hour') AND (water == 1 OR water == 0);",sep=""))$ret}))
+w24 <- as.numeric(apply(p1,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT sum((1-(julianday(datetime('",x['date'],"'))-julianday(date)))) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-24 hour') AND date < datetime('",x['date'],"') AND (water == 11 OR water == 12)",sep=""))$ret}))
+mw24 <- as.numeric(apply(p1,MARGIN=1,function(x){dbGetQuery(con,paste("SELECT count(*) as ret FROM messwerte WHERE date > datetime('",x['date'],"','-12 hour') AND date < datetime('",x['date'],"','+12 hour') AND (water == 11 OR water == 10);",sep=""))$ret}))
 data <- cbind(p1,atp24,stp24,w24,mw24,atp25)
 data <- data[which(data$mw24 > 0),]
 data$water <- as.factor(data$water)
@@ -34,7 +35,7 @@ importance(fit)
 table(round(ctest),round(predict(fit,test)))
 table(round(ctest),round(predict(neural, test )))
 
-save(fit,neural,file="/home/odroid/tinkering/fit.RData")
+save(fit,neural,file="/home/odroid/tinkering/fit2.RData")
 
 print(db)
 file.remove(db)
